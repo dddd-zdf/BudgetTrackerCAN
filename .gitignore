@@ -152,3 +152,4 @@ cython_debug/
 #.idea/
 credentials.py
 transactions.db
+configs.yaml
