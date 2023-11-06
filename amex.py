@@ -32,10 +32,28 @@ def switch_card(driver, card):
     else:
         card_element = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located(
-            (By.XPATH, '/html/body/div[1]/div/div[3]/card-selector/div/div[1]/div[2]/div[2]/div/div[2]/img')
+            (By.XPATH, '/html/body/div[1]/div/div[3]/card-selector/div/div[1]/div[2]/div[2]/div/div[2]')
         )
     )
         card_element.click()
+        
+        #wait until the table is updated after switching card by checking the id of the first transaction
+        def has_id_changed(driver, initial_id, xpath):
+            try:
+                current_id = driver.find_element(By.XPATH, xpath).get_attribute("id")
+                return current_id != initial_id
+            except Exception as e:
+                # If there's an error finding the element, we can assume the page might be updating
+                return False
+
+        # Define the XPath for the first <tr> element and get its initial ID
+        first_tr_xpath = "//*[@id='transaction-table']/tbody/tr[1]"
+        initial_tr_id = driver.find_element(By.XPATH, first_tr_xpath).get_attribute("id")
+        
+        # Wait until the ID of the first <tr> element changes
+        WebDriverWait(driver, 10).until(
+            lambda d: has_id_changed(d, initial_tr_id, first_tr_xpath)
+        )
 
 
 def get_last_transaction_id(cursor):
