@@ -63,7 +63,7 @@ def get_last_transaction_id(cursor):
 def insert_transaction(cursor, transaction_data):
     cursor.execute("INSERT INTO transactions (id, date, cent, description, account) VALUES (?, ?, ?, ?, ?)", transaction_data)
 
-def retrieve_transactions(driver, card, cursor):
+def retrieve_transactions(driver, card, cursor, conn):
     # Switch to the specific card
     switch_card(driver, card)
 
@@ -102,7 +102,7 @@ def retrieve_transactions(driver, card, cursor):
             # This will skip the insert if the transaction id is already in the database
             continue
 
-    # Commit changes and close the database connection
+    # Commit changes
     conn.commit()
 
 def setup_database():
@@ -130,8 +130,8 @@ if __name__ == "__main__":
     
     try:
         login(driver)
-        retrieve_transactions(driver, 'amex gold', cursor)
-        retrieve_transactions(driver, 'amex cobalt', cursor)
+        retrieve_transactions(driver, 'amex gold', cursor, conn)
+        retrieve_transactions(driver, 'amex cobalt', cursor, conn)
         conn.commit()
     except Exception as e:
         print(f"An error occurred: {e}")
