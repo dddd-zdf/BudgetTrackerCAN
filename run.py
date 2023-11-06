@@ -1,34 +1,15 @@
+import yaml
+import importlib
 import sqlite3
 from selenium import webdriver
-# Import your modules here
-import amex
-# import tangerine
-# import other_bank
 
-# Configuration for each bank module
-bank_modules = [
-    {
-        'module': amex,
-        'cards': ['amex gold', 'amex cobalt']
-    },
-    # Uncomment and complete the configuration as you add more modules
-    # {
-    #     'module': tangerine,
-    #     'cards': ['tangerine card']
-    # },
-    # {
-    #     'module': other_bank,
-    #     'cards': ['other bank card']
-    # },
-]
+CONFIG_FILE = 'configs.yaml'
 
 def setup_database():
-        # Initialize the database for storing transactions
     conn = sqlite3.connect('transactions.db')
     cursor = conn.cursor()
-    
-    # Assuming all modules use the same table structure
-    cursor.execute('''
+    cursor.execute(
+        '''
         CREATE TABLE IF NOT EXISTS transactions (
             id TEXT PRIMARY KEY,
             date DATE,
@@ -36,29 +17,53 @@ def setup_database():
             description TEXT,
             card TEXT
         )
-    ''')
+        '''
+    )
     conn.commit()
     return conn
 
 def main():
+    # Load the YAML configuration file into a dictionary
+    with open(CONFIG_FILE, 'r') as file:
+        configs = yaml.safe_load(file)
+
+    # Setup database (if needed)
     conn = setup_database()
     cursor = conn.cursor()
-    driver = webdriver.Chrome()
 
-    try:
-        for bank in bank_modules:
-            module = bank['module']
-            module.login(driver)  # Assuming all modules have a login function
-            for card in bank.get('cards', []):
-                module.retrieve_transactions(driver, card, cursor, conn)  # Pass the card if necessary
+    # Iterate over each configuration
+    for config_name, config in configs.items():
+        # Dynamically import the module using the config name
+        module = importlib.import_module(config_name)
 
-        conn.commit()
-    except Exception as e:
-        print(f"An error occurred: {e}")
-    finally:
-        cursor.close()
-        conn.close()
-        driver.quit()
+        # Extract the credentials and URL for the bank
+        username = config['username']
+        password = config['password']
+        url = config['url']
+
+        # Initialize the webdriver and pass it to the module's login function
+        driver = webdriver.Chrome()  # Replace with your preferred browser
+
+        try:
+            # Assuming each module has a login function
+            module.login(driver, url, username, password)
+
+            # Assuming each module has a retrieve_transactions function
+            for card in config['cards']:
+                module.retrieve_transactions(driver, card, cursor, conn)
+
+            # Commit after each bank's transactions are retrieved
+            conn.commit()
+
+        except Exception as e:
+            print(f"An error occurred with {config_name}: {e}")
+
+        finally:
+            # Close the driver after each bank's transactions are handled
+            driver.quit()
+
+    # Close the database connection after all transactions have been retrieved
+    conn.close()
 
 if __name__ == "__main__":
     main()

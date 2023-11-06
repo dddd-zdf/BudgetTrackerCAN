@@ -4,15 +4,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import sqlite3
-from credentials import credentials
-
-url = "https://global.americanexpress.com/myca/intl/istatement/canlac/statement.do?Face=en_CA&method=displayStatement&account_key=3CEF27AED122159731EE13220E647C1F&BPIndex=0#/"
 
 
-def login(driver):
+
+def login(driver, url, username, password):
     # Use the credentials for American Express
-    amex_credentials = credentials['amex']
-
     driver.get(url)
     username_input = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.ID, 'eliloUserID'))
@@ -20,8 +16,8 @@ def login(driver):
     password_input = driver.find_element(By.ID, 'eliloPassword')
     login_button = driver.find_element(By.ID, 'loginSubmit')
 
-    username_input.send_keys(amex_credentials['Username'])
-    password_input.send_keys(amex_credentials['Password'])
+    username_input.send_keys(username)
+    password_input.send_keys(password)
     login_button.click()
 
 def switch_card(driver, card):
@@ -120,16 +116,22 @@ def setup_database():
         '''
     )
     conn.commit()
-    conn.close()
+    return conn
 
 if __name__ == "__main__":
-    setup_database()
+    import yaml
     driver = webdriver.Chrome()
-    conn = sqlite3.connect('transactions.db')
+    conn = setup_database()
     cursor = conn.cursor()
-    
+    with open('configs.yaml', 'r') as config_file:
+        configs = yaml.safe_load(config_file)
+    username = configs['amex']['username']
+    password = configs['amex']['password']
+    url = configs['amex']['url']
+
     try:
-        login(driver)
+
+        login(driver, url, username, password)
         retrieve_transactions(driver, 'amex gold', cursor, conn)
         retrieve_transactions(driver, 'amex cobalt', cursor, conn)
         conn.commit()
