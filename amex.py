@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import sqlite3
+from credentials import get_credentials
 
 
 
@@ -125,8 +126,7 @@ if __name__ == "__main__":
     cursor = conn.cursor()
     with open('configs.yaml', 'r') as config_file:
         configs = yaml.safe_load(config_file)
-    username = configs['amex']['username']
-    password = configs['amex']['password']
+    username, password = get_credentials('amex')
     url = configs['amex']['url']
 
     try:
