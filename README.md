@@ -12,3 +12,8 @@ For now, I have finished the backbone for Amex Canada, with the card selection h
 - [ ] main.py
 - [ ] amex.py card selection
 - [ ] tangerine.py
+
+## Instructions
+1. Run `add_credentials.py` to store your credentials. They will be encrypted and stored locally by `keyring`.
+2. Modify `config.yaml` to include your financial institutions, cards, and URLs.
+3. Run `run.py`. All transactions will be stored locally in `transactions.db`.
