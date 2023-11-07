@@ -2,6 +2,7 @@ import yaml
 import importlib
 import sqlite3
 from selenium import webdriver
+from credentials import get_credentials
 
 CONFIG_FILE = 'configs.yaml'
 
@@ -35,10 +36,8 @@ def main():
     for config_name, config in configs.items():
         # Dynamically import the module using the config name
         module = importlib.import_module(config_name)
-
         # Extract the credentials and URL for the bank
-        username = config['username']
-        password = config['password']
+        username, password = get_credentials(config_name)
         url = config['url']
 
         # Initialize the webdriver and pass it to the module's login function

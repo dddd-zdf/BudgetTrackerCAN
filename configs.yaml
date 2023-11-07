@@ -1,0 +1,10 @@
+amex:
+  url: 'https://global.americanexpress.com/myca/intl/istatement/canlac/statement.do?Face=en_CA&method=displayStatement&account_key=3CEF27AED122159731EE13220E647C1F&BPIndex=0#/'
+  cards:
+    - 'amex gold'
+    - 'amex cobalt'
+
+# tangerine:
+#   url: 'https://secure.tangerine.ca/web/InitialTangerine.html'
+#   cards:
+#     - 'tangerine card'
