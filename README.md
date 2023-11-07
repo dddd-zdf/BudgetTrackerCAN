@@ -8,6 +8,7 @@ For now, I have finished the backbone for Amex Canada, with the card selection h
 
 ## To-do
 - [x] amex.py backbone
+- [x] keyring
 - [ ] main.py
 - [ ] amex.py card selection
 - [ ] tangerine.py
